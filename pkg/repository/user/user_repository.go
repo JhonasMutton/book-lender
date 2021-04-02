@@ -9,8 +9,9 @@ import (
 )
 
 type IRepository interface {
-	FetchUsers() (*model.Users, error)
-	PersistUser(user model.User) (*model.User, error)
+	Persist(user model.User) (*model.User, error)
+	Fetch() (*model.Users, error)
+	FetchById(id uint) (*model.User, error)
 }
 
 type Repository struct {
@@ -47,7 +48,7 @@ func NewRepository() *Repository {
 	}
 }
 
-func (r *Repository) FetchUsers() (*model.Users, error) {
+func (r *Repository) Fetch() (*model.Users, error) {
 	var users model.Users
 	result := r.db.Find(&users)
 	if err := result.Error; err != nil {
@@ -57,10 +58,20 @@ func (r *Repository) FetchUsers() (*model.Users, error) {
 	return &users, nil
 }
 
-func (r *Repository) PersistUser(user model.User) (*model.User, error) {
+func (r *Repository) Persist(user model.User) (*model.User, error) {
 	result := r.db.Create(&user)
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
+func (r *Repository) FetchById(id uint) (*model.User, error) {
+	var user model.User
+	result := r.db.First(&user, id)
+	if err := result.Error; err != nil {
+		return nil, err
 	}
 
 	return &user, nil
