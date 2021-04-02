@@ -8,12 +8,18 @@ package main
 import (
 	"github.com/JhonasMutton/book-lender/pkg"
 	"github.com/JhonasMutton/book-lender/pkg/api/config"
+	user3 "github.com/JhonasMutton/book-lender/pkg/api/handler/user"
+	"github.com/JhonasMutton/book-lender/pkg/repository/user"
+	user2 "github.com/JhonasMutton/book-lender/pkg/usecase/user"
 )
 
 // Injectors from wire.go:
 
 func SetupApplication() pkg.Application {
-	handler := config.NewHandler()
-	application := pkg.NewApplication(handler)
+	repository := user.NewRepository()
+	useCase := user2.NewUseCase(repository)
+	handler := user3.NewHandler(useCase)
+	httpHandler := config.NewHandlerConfig(handler)
+	application := pkg.NewApplication(httpHandler)
 	return application
 }
