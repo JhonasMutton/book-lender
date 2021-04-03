@@ -9,8 +9,14 @@ type LoanBook struct {
 	ToUser     uint      `json:"to_user"`
 	LentAt     time.Time `json:"lent_at"`
 	ReturnedAt time.Time `json:"returned_at"`
-	IsActive   bool      `json:"is_active"`
+	Status     string    `json:"Status" gorm:"type:ENUM('lent', 'returned')"`
 }
+
+//Status
+const (
+	StatusLent     = "lent"
+	StatusReturned = "returned"
+)
 
 type LendBookDTO struct {
 	BookID     uint `json:"book_id"`
@@ -25,7 +31,7 @@ func (l LendBookDTO) ToModel() LoanBook {
 		ToUser:     l.ToUser,
 		LentAt:     time.Now(),
 		ReturnedAt: time.Now(),
-		IsActive:   true,
+		Status:     StatusLent,
 	}
 }
 
@@ -36,8 +42,8 @@ type ReturnBookDTO struct {
 
 func (l ReturnBookDTO) ToModel() LoanBook {
 	return LoanBook{
-		BookID:     l.BookID,
-		ToUser:     l.LoggedUser,
-		IsActive:   true,
+		BookID: l.BookID,
+		ToUser: l.LoggedUser,
+		Status: StatusLent,
 	}
 }

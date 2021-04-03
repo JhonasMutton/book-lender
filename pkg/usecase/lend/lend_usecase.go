@@ -27,7 +27,7 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 	//TODO VALIDATE FIELDS
 	lendModel := lendDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.Find(lendModel)
+	loanBookFound, err := u.lendRepository.FindByUsers(lendModel)
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound){
 		return nil, err
 	}
@@ -35,7 +35,6 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 		return nil, errors.New("book already lent")
 	}
 
-	lendModel.IsActive = true
 	lendModel.LentAt =  time.Now()
 
 	persisted, err := u.lendRepository.Persist(lendModel)
@@ -50,7 +49,7 @@ func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) 
 	//TODO VALIDATE FIELDS
 	returnModel := returnDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.Find(returnModel)
+	loanBookFound, err := u.lendRepository.FindByToUser(returnModel)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +58,7 @@ func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) 
 	}
 
 	loanBookFound.ReturnedAt = time.Now()
-	loanBookFound.IsActive = false
+	loanBookFound.Status = model.StatusReturned
 
 	persisted, err := u.lendRepository.Update(*loanBookFound)
 	if err != nil {
