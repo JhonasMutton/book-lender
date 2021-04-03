@@ -1,31 +1,30 @@
-package user
+package lend
 
 import (
 	"encoding/json"
 	"github.com/JhonasMutton/book-lender/pkg/api/render"
 	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
-	"github.com/JhonasMutton/book-lender/pkg/usecase/user"
-	"github.com/gorilla/mux"
+	"github.com/JhonasMutton/book-lender/pkg/usecase/lend"
 	"net/http"
 )
 
 type Handler struct {
-	userUseCase user.IUseCase
+	lendUseCase lend.IUseCase
 }
 
-func NewHandler(userUseCase user.IUseCase) *Handler {
-	return &Handler{userUseCase: userUseCase}
+func NewHandler(lendUseCase lend.IUseCase) *Handler {
+	return &Handler{lendUseCase: lendUseCase}
 }
 
-func (h *Handler) Post(w http.ResponseWriter, r *http.Request) {
-	var userDTO model.UserDto
-	if err := json.NewDecoder(r.Body).Decode(&userDTO); err != nil {
+func (h *Handler) Lend(w http.ResponseWriter, r *http.Request) {
+	var lendDTO model.LendBookDTO
+	if err := json.NewDecoder(r.Body).Decode(&lendDTO); err != nil {
 		render.ResponseError(w, err, GenerateHTTPErrorStatusCode(errors.ErrInvalidPayload))
 		return
 	}
 
-	u, err := h.userUseCase.Create(userDTO)
+	u, err := h.lendUseCase.Lend(lendDTO)
 	if err != nil {
 		render.ResponseError(w, err, GenerateHTTPErrorStatusCode(err))
 		return
@@ -34,8 +33,14 @@ func (h *Handler) Post(w http.ResponseWriter, r *http.Request) {
 	render.Response(w, u, http.StatusOK)
 }
 
-func (h *Handler) Find(w http.ResponseWriter, r *http.Request) {
-	u, err := h.userUseCase.Find()
+func (h *Handler) Return(w http.ResponseWriter, r *http.Request) {
+	var returnDTO model.ReturnBookDTO
+	if err := json.NewDecoder(r.Body).Decode(&returnDTO); err != nil {
+		render.ResponseError(w, err, GenerateHTTPErrorStatusCode(errors.ErrInvalidPayload))
+		return
+	}
+
+	u, err := h.lendUseCase.Return(returnDTO)
 	if err != nil {
 		render.ResponseError(w, err, GenerateHTTPErrorStatusCode(err))
 		return
@@ -43,19 +48,6 @@ func (h *Handler) Find(w http.ResponseWriter, r *http.Request) {
 
 	render.Response(w, u, http.StatusOK)
 }
-
-func (h *Handler) FindById(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
-
-	u, err := h.userUseCase.FindById(id)
-	if err != nil {
-		render.ResponseError(w, err, GenerateHTTPErrorStatusCode(err))
-		return
-	}
-
-	render.Response(w, u, http.StatusOK)
-}
-
 func GenerateHTTPErrorStatusCode(err error) int {
 	switch errors.Cause(err).(type) {
 	case *errors.NotFound:

@@ -4,11 +4,10 @@ import (
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
 	"strconv"
-	"time"
 )
 
 type IUseCase interface {
-	Create(basicUser model.BasicUser) (*model.User, error)
+	Create(userDto model.UserDto) (*model.User, error)
 	Find() (*model.Users, error)
 	FindById(id string) (*model.User, error)
 }
@@ -21,13 +20,11 @@ func NewUseCase(userRepository user.IRepository) *UseCase {
 	return &UseCase{userRepository: userRepository}
 }
 
-func (u UseCase) Create(basicUser model.BasicUser) (*model.User, error) {
-	us := model.User{
-		BasicUser: basicUser,
-		CreatedAt: time.Now(),
-	}
+func (u UseCase) Create(userDto model.UserDto) (*model.User, error) {
+	//TODO VALIDATE FIELDS
+	userModel := userDto.ToModel()
 
-	persisted, err := u.userRepository.Persist(us)
+	persisted, err := u.userRepository.Persist(userModel)
 	if err != nil {
 		return nil, err //TODO Handle errors
 	}
