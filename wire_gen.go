@@ -8,8 +8,14 @@ package main
 import (
 	"github.com/JhonasMutton/book-lender/pkg"
 	"github.com/JhonasMutton/book-lender/pkg/api/config"
+	book3 "github.com/JhonasMutton/book-lender/pkg/api/handler/book"
+	lend3 "github.com/JhonasMutton/book-lender/pkg/api/handler/lend"
 	user3 "github.com/JhonasMutton/book-lender/pkg/api/handler/user"
+	"github.com/JhonasMutton/book-lender/pkg/repository/book"
+	"github.com/JhonasMutton/book-lender/pkg/repository/lend"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
+	book2 "github.com/JhonasMutton/book-lender/pkg/usecase/book"
+	lend2 "github.com/JhonasMutton/book-lender/pkg/usecase/lend"
 	user2 "github.com/JhonasMutton/book-lender/pkg/usecase/user"
 )
 
@@ -19,7 +25,13 @@ func SetupApplication() pkg.Application {
 	repository := user.NewRepository()
 	useCase := user2.NewUseCase(repository)
 	handler := user3.NewHandler(useCase)
-	httpHandler := config.NewHandlerConfig(handler)
+	bookRepository := book.NewRepository()
+	bookUseCase := book2.NewUseCase(bookRepository)
+	bookHandler := book3.NewHandler(bookUseCase)
+	lendRepository := lend.NewRepository()
+	lendUseCase := lend2.NewUseCase(lendRepository)
+	lendHandler := lend3.NewHandler(lendUseCase)
+	httpHandler := config.NewHandlerConfig(handler, bookHandler, lendHandler)
 	application := pkg.NewApplication(httpHandler)
 	return application
 }

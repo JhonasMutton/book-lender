@@ -34,7 +34,7 @@ func NewRepository() *Repository {
 	if err != nil {
 		panic(err.Error())
 	}
-	err = db.AutoMigrate(&model.LoanBooks{})
+	err = db.AutoMigrate(&model.LoanBook{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -69,10 +69,10 @@ func (r *Repository) Persist(user model.User) (*model.User, error) {
 
 func (r *Repository) FetchById(id uint) (*model.User, error) {
 	var user model.User
-	result := r.db.First(&user, id)
-	if err := result.Error; err != nil {
-		return nil, err
-	}
+	r.db.Debug().Preload("Collection").
+		Preload("LentBooks").
+		Preload("BorrowedBooks").
+		First(&user, id)  //Usar preloads pode ser oneroso, o ideal seria utilizar JOINS, porém despenderia mais tempo de trabalho
 
 	return &user, nil
 }
