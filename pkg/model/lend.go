@@ -19,9 +19,9 @@ const (
 )
 
 type LendBookDTO struct {
-	BookID     uint `json:"book_id"`
-	LoggedUser uint `json:"logged_user_id"`
-	ToUser     uint `json:"to_user_id"`
+	BookID     uint `json:"book_id" validate:"required"`
+	LoggedUser uint `json:"logged_user_id" validate:"required"`
+	ToUser     uint `json:"to_user_id" validate:"required"`
 }
 
 func (l LendBookDTO) ToModel() LoanBook {
@@ -36,8 +36,8 @@ func (l LendBookDTO) ToModel() LoanBook {
 }
 
 type ReturnBookDTO struct {
-	BookID     uint `json:"book_id"`
-	LoggedUser uint `json:"logged_user_id"`
+	BookID     uint `json:"book_id" validate:"required"`
+	LoggedUser uint `json:"logged_user_id" validate:"required"`
 }
 
 func (l ReturnBookDTO) ToModel() LoanBook {

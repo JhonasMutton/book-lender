@@ -7,7 +7,7 @@ import (
 
 type Book struct {
 	ID          uint       `json:"id"  gorm:"primaryKey"`
-	Title       string     `json:"title"`
+	Title       string     `json:"title" gorm:"size:200"`
 	Pages       uint       `json:"pages"`
 	CreatedAt   time.Time  `json:"created_at"`
 	OwnerId     uint       `json:"-"`
@@ -15,9 +15,9 @@ type Book struct {
 }
 
 type BookDTO struct {
-	Title        string `json:"title"`
-	Pages        string `json:"pages"`
-	LoggedUserId uint   `json:"logged_user_id"`
+	Title        string `json:"title" validate:"required,max=200"`
+	Pages        string `json:"pages" validate:"required,number"`
+	LoggedUserId uint   `json:"logged_user_id" validate:"required"`
 }
 
 func (dto BookDTO) ToModel() Book {
