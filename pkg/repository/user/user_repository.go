@@ -42,10 +42,13 @@ func (r *Repository) Persist(user model.User) (*model.User, error) {
 
 func (r *Repository) FetchById(id uint) (*model.User, error) {
 	var user model.User
-	r.db.Debug().Preload("Collection").
+	result := r.db.Debug().Preload("Collection").
 		Preload("LentBooks").
 		Preload("BorrowedBooks").
 		First(&user, id)  //Usar preloads pode ser oneroso, o ideal seria utilizar JOINS, porém despenderia mais tempo de trabalho
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
 	return &user, nil
 }
