@@ -1,6 +1,7 @@
 package lend
 
 import (
+	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"gorm.io/gorm"
 )
@@ -8,9 +9,8 @@ import (
 type IRepository interface {
 	Persist(loanBook model.LoanBook) (*model.LoanBook, error)
 	Update(loanBook model.LoanBook) (*model.LoanBook, error)
-	FindByUsers(loanBook model.LoanBook) (*model.LoanBook, error)
-	FindByToUser(loanBook model.LoanBook) (*model.LoanBook, error)
-	FindByBookAndStatus(bookId uint, status string) (*model.LoanBook, error)
+	FetchByToUserAndBookAndStatus(loanBook model.LoanBook) (*model.LoanBook, error)
+	FetchByBookAndStatus(bookId uint, status string) (*model.LoanBook, error)
 }
 
 type Repository struct {
@@ -34,45 +34,32 @@ func (r Repository) Persist(loanBook model.LoanBook) (*model.LoanBook, error) {
 }
 
 func (r Repository) Update(loanBook model.LoanBook) (*model.LoanBook, error) {
-	result := r.db.Updates(&loanBook) //TODO update com status
-	r.db.Model(&loanBook).Updates(&loanBook).Update("isActive", loanBook.Status)
+	result := r.db.Updates(&loanBook)
 	if err := result.Error; err != nil {
 		return nil, err
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, errors.New("not found")
 	}
 
 	return &loanBook, nil
 }
 
-func (r Repository) FindByUsers(loanBook model.LoanBook) (*model.LoanBook, error) {
-	result := r.db.Where("book_id = ? and from_user = ? and to_user = ? and status = ?",
-						loanBook.BookID, loanBook.FromUser, loanBook.ToUser, loanBook.Status).
-		First(&loanBook)
-
-	if err := result.Error; err != nil {
-		return nil, err
-	}
-
-	return &loanBook, nil
-}
-
-func (r Repository) FindByToUser(loanBook model.LoanBook) (*model.LoanBook, error) {
-	result := r.db.Where("book_id = ? and to_user = ? and status = ?",
-						loanBook.BookID, loanBook.ToUser, loanBook.Status).
-		First(&loanBook)
-
-	if err := result.Error; err != nil {
-		return nil, err
-	}
-
-	return &loanBook, nil
-}
-
-
-func (r Repository) FindByBookAndStatus(bookId uint, status string) (*model.LoanBook, error) {
+func (r Repository) FetchByToUserAndBookAndStatus(toUserId, bookId uint, status string) (*model.LoanBook, error) {
 	var loanBook model.LoanBook
-	result := r.db.Where("book_id = ? and status = ?",
-		bookId, status).
-		First(&loanBook)
+	result := r.db.Where("book_id = ? and to_user = ? and status = ?", bookId, toUserId, status).First(&loanBook)
+
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+
+	return &loanBook, nil
+}
+
+func (r Repository) FetchByBookAndStatus(bookId uint, status string) (*model.LoanBook, error) {
+	var loanBook model.LoanBook
+	result := r.db.Where("book_id = ? and status = ?", bookId, status).First(&loanBook)
 
 	if err := result.Error; err != nil {
 		return nil, err

@@ -10,8 +10,8 @@ type Book struct {
 	Title       string     `json:"title" gorm:"size:200"`
 	Pages       uint       `json:"pages"`
 	CreatedAt   time.Time  `json:"created_at"`
-	OwnerId     uint       `json:"-"`
-	BookHistory []LoanBook `json:"book_history,omitempty" gorm:"foreignKey:BookID"`
+	Owner       uint       `json:"-"`
+	BookHistory []LoanBook `json:"book_history,omitempty" gorm:"foreignKey:Book"`
 }
 
 type BookDTO struct {
@@ -23,8 +23,8 @@ type BookDTO struct {
 func (dto BookDTO) ToModel() Book {
 	pages, _ := strconv.ParseUint(dto.Pages, 10, 32) //TODO Verificar se validator verifica isso
 	return Book{
-		Title:   dto.Title,
-		Pages:   uint(pages),
-		OwnerId: dto.LoggedUserId,
+		Title: dto.Title,
+		Pages: uint(pages),
+		Owner: dto.LoggedUserId,
 	}
 }

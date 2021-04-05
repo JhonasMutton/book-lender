@@ -49,7 +49,7 @@ func TestRepository_Persist(t *testing.T) {
 		Title:     "A volta dos que não foram",
 		Pages:     760,
 		CreatedAt: time.Now(),
-		OwnerId:   genericUser.ID,
+		Owner:     genericUser.ID,
 	}
 	//when
 	persistedBook, err := repository.Persist(book)
@@ -81,7 +81,7 @@ func TestRepository_Persist_withInvalidOwner(t *testing.T) {
 		Title:     "A volta dos que não foram",
 		Pages:     760,
 		CreatedAt: time.Now(),
-		OwnerId: 10,
+		Owner:     10,
 	}
 	//when
 	persistedBook, err := repository.Persist(book)
@@ -98,7 +98,7 @@ func TestRepository_Persist_withExistentId(t *testing.T) {
 		Title:     "A volta dos que não foram",
 		Pages:     760,
 		CreatedAt: time.Now(),
-		OwnerId: genericUser.ID,
+		Owner:     genericUser.ID,
 	}
 	//when
 	persistedBook, err := repository.Persist(book)

@@ -32,7 +32,7 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 
 	lendModel := lendDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.FindByBookAndStatus(lendModel.BookID, model.StatusLent)
+	loanBookFound, err := u.lendRepository.FetchByBookAndStatus(lendModel.Book, model.StatusLent)
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) 
 
 	returnModel := returnDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.FindByToUser(returnModel)
+	loanBookFound, err := u.lendRepository.FetchByToUserAndBookAndStatus(returnModel.ToUser, returnModel.Book, model.StatusLent)
 	if err != nil {
 		return nil, err
 	}

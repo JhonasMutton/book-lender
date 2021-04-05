@@ -4,7 +4,7 @@ import "time"
 
 type LoanBook struct {
 	ID         uint      `json:"id" gorm:"primaryKey"`
-	BookID     uint      `json:"book_id"`
+	Book       uint      `json:"book"`
 	FromUser   uint      `json:"from_user"`
 	ToUser     uint      `json:"to_user"`
 	LentAt     time.Time `json:"lent_at"`
@@ -19,14 +19,14 @@ const (
 )
 
 type LendBookDTO struct {
-	BookID     uint `json:"book_id" validate:"required"`
+	Book       uint `json:"book_id" validate:"required"`
 	LoggedUser uint `json:"logged_user_id" validate:"required"`
 	ToUser     uint `json:"to_user_id" validate:"required"`
 }
 
 func (l LendBookDTO) ToModel() LoanBook {
 	return LoanBook{
-		BookID:     l.BookID,
+		Book:       l.Book,
 		FromUser:   l.LoggedUser,
 		ToUser:     l.ToUser,
 		LentAt:     time.Now(),
@@ -42,7 +42,7 @@ type ReturnBookDTO struct {
 
 func (l ReturnBookDTO) ToModel() LoanBook {
 	return LoanBook{
-		BookID: l.BookID,
+		Book:   l.BookID,
 		ToUser: l.LoggedUser,
 		Status: StatusLent,
 	}
