@@ -4,6 +4,7 @@ import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/lend"
+	"github.com/go-playground/validator"
 	goErrors "github.com/pkg/errors"
 	"gorm.io/gorm"
 
@@ -17,25 +18,29 @@ type IUseCase interface {
 
 type UseCase struct {
 	lendRepository *lend.Repository
+	validate       *validator.Validate
 }
 
-func NewUseCase(lendRepository *lend.Repository) *UseCase {
-	return &UseCase{lendRepository: lendRepository}
+func NewUseCase(lendRepository *lend.Repository, validate *validator.Validate) *UseCase {
+	return &UseCase{lendRepository: lendRepository, validate: validate}
 }
 
 func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
-	//TODO VALIDATE FIELDS
-	lendModel := lendDTO.ToModel()
-
-	loanBookFound, err := u.lendRepository.FindByUsers(lendModel)
-	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound){
+	if err := u.validate.Struct(lendDTO); err != nil {
 		return nil, err
 	}
-	if loanBookFound != nil {
+
+	lendModel := lendDTO.ToModel()
+
+	loanBookFound, err := u.lendRepository.FindByBookAndStatus(lendModel.BookID, model.StatusLent)
+	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	if loanBookFound != nil { //REGRA 3
 		return nil, errors.New("book already lent")
 	}
 
-	lendModel.LentAt =  time.Now()
+	lendModel.LentAt = time.Now()
 
 	persisted, err := u.lendRepository.Persist(lendModel)
 	if err != nil {
@@ -46,14 +51,17 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 }
 
 func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) {
-	//TODO VALIDATE FIELDS
+	if err := u.validate.Struct(returnDTO); err != nil {
+		return nil, err
+	}
+
 	returnModel := returnDTO.ToModel()
 
 	loanBookFound, err := u.lendRepository.FindByToUser(returnModel)
 	if err != nil {
 		return nil, err
 	}
-	if loanBookFound == nil {
+	if loanBookFound == nil { //REGRA 4
 		return nil, errors.New("book already returned")
 	}
 

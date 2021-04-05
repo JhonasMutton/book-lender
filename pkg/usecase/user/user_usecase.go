@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
+	"github.com/go-playground/validator"
 	"strconv"
 )
 
@@ -14,14 +15,18 @@ type IUseCase interface {
 
 type UseCase struct {
 	userRepository user.IRepository
+	validate       *validator.Validate
 }
 
-func NewUseCase(userRepository user.IRepository) *UseCase {
-	return &UseCase{userRepository: userRepository}
+func NewUseCase(userRepository user.IRepository, validate *validator.Validate) *UseCase {
+	return &UseCase{userRepository: userRepository, validate: validate}
 }
 
 func (u UseCase) Create(userDto model.UserDto) (*model.User, error) {
-	//TODO VALIDATE FIELDS
+	if err := u.validate.Struct(userDto); err != nil {
+		return nil, err
+	}
+
 	userModel := userDto.ToModel()
 
 	persisted, err := u.userRepository.Persist(userModel)
