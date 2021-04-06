@@ -17,11 +17,11 @@ type IUseCase interface {
 }
 
 type UseCase struct {
-	lendRepository *lend.Repository
+	lendRepository lend.IRepository
 	validate       *validator.Validate
 }
 
-func NewUseCase(lendRepository *lend.Repository, validate *validator.Validate) *UseCase {
+func NewUseCase(lendRepository lend.IRepository, validate *validator.Validate) *UseCase {
 	return &UseCase{lendRepository: lendRepository, validate: validate}
 }
 
@@ -36,7 +36,7 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	if loanBookFound != nil { //REGRA 3
+	if loanBookFound != nil || goErrors.Is(err, gorm.ErrRecordNotFound) { //REGRA 3
 		return nil, errors.New("book already lent")
 	}
 

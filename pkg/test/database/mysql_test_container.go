@@ -20,7 +20,6 @@ func InitMySqlContainer() {
 
 	req := testcontainers.ContainerRequest{
 		Image:        "mysql:" + database.MySqlVersion,
-		Name:         "mysql-test",
 		ExposedPorts: []string{"3306/tcp", "33060/tcp"},
 		Env: map[string]string{
 			"MYSQL_ROOT_PASSWORD": "admin",

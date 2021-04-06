@@ -131,7 +131,7 @@ func TestRepository_Persist_withInvalidBook(t *testing.T) {
 	//then
 	assert.Nil(t, persistedLoanBook)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`loan_books`, CONSTRAINT `fk_books_book_history` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`))")
+	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`loan_books`, CONSTRAINT `fk_books_book_history` FOREIGN KEY (`book`) REFERENCES `books` (`id`))")
 }
 
 func TestRepository_Persist_withInvalidToUser(t *testing.T) {

@@ -1,6 +1,7 @@
 package book
 
 import (
+	"fmt"
 	"github.com/JhonasMutton/book-lender/pkg/database"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	testDatabase "github.com/JhonasMutton/book-lender/pkg/test/database"
@@ -72,7 +73,7 @@ func TestRepository_Persist_withoutOwner(t *testing.T) {
 	//then
 	assert.Nil(t, persistedBook)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`books`, CONSTRAINT `fk_users_collection` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`))")
+	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`books`, CONSTRAINT `fk_users_collection` FOREIGN KEY (`owner`) REFERENCES `users` (`id`))")
 }
 
 func TestRepository_Persist_withInvalidOwner(t *testing.T) {
@@ -88,7 +89,7 @@ func TestRepository_Persist_withInvalidOwner(t *testing.T) {
 	//then
 	assert.Nil(t, persistedBook)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`books`, CONSTRAINT `fk_users_collection` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`))")
+	assert.EqualError(t, err, "Error 1452: Cannot add or update a child row: a foreign key constraint fails (`book-lender`.`books`, CONSTRAINT `fk_users_collection` FOREIGN KEY (`owner`) REFERENCES `users` (`id`))")
 	//TODO adicionar validação comparando com classes de error da lib
 }
 
@@ -111,5 +112,5 @@ func TestRepository_Persist_withExistentId(t *testing.T) {
 	//then
 	assert.Nil(t, persistedBook2)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Error 1062: Duplicate entry '1' for key 'books.PRIMARY'")
+	assert.EqualError(t, err, fmt.Sprintf("Error 1062: Duplicate entry '%x' for key 'books.PRIMARY'", persistedBook.ID))
 }

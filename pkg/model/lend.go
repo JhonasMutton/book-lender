@@ -36,13 +36,13 @@ func (l LendBookDTO) ToModel() LoanBook {
 }
 
 type ReturnBookDTO struct {
-	BookID     uint `json:"book_id" validate:"required"`
+	Book       uint `json:"book_id" validate:"required"`
 	LoggedUser uint `json:"logged_user_id" validate:"required"`
 }
 
 func (l ReturnBookDTO) ToModel() LoanBook {
 	return LoanBook{
-		Book:   l.BookID,
+		Book:   l.Book,
 		ToUser: l.LoggedUser,
 		Status: StatusLent,
 	}
