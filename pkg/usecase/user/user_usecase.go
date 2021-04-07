@@ -1,9 +1,10 @@
 package user
 
 import (
+	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
-	"github.com/go-playground/validator"
+	"github.com/JhonasMutton/book-lender/pkg/validate"
 	"strconv"
 )
 
@@ -15,23 +16,23 @@ type IUseCase interface {
 
 type UseCase struct {
 	userRepository user.IRepository
-	validate       *validator.Validate
+	validator      *validate.Validator
 }
 
-func NewUseCase(userRepository user.IRepository, validate *validator.Validate) *UseCase {
-	return &UseCase{userRepository: userRepository, validate: validate}
+func NewUseCase(userRepository user.IRepository, validate *validate.Validator) *UseCase {
+	return &UseCase{userRepository: userRepository, validator: validate}
 }
 
 func (u UseCase) Create(userDto model.UserDto) (*model.User, error) {
-	if err := u.validate.Struct(userDto); err != nil {
-		return nil, err
+	if err := u.validator.Validate(userDto); err != nil {
+		return nil, errors.WrapWithMessage(errors.ErrInvalidPayload, err.Error())
 	}
 
 	userModel := userDto.ToModel()
 
 	persisted, err := u.userRepository.Persist(userModel)
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return persisted, nil
@@ -40,7 +41,7 @@ func (u UseCase) Create(userDto model.UserDto) (*model.User, error) {
 func (u UseCase) Find() (*model.Users, error) {
 	users, err := u.userRepository.Fetch()
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return users, nil
@@ -56,7 +57,7 @@ func (u UseCase) FindById(id string) (*model.User, error) {
 
 	users, err := u.userRepository.FetchById(idUint)
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return users, nil

@@ -18,7 +18,7 @@ import (
 	book2 "github.com/JhonasMutton/book-lender/pkg/usecase/book"
 	lend2 "github.com/JhonasMutton/book-lender/pkg/usecase/lend"
 	user2 "github.com/JhonasMutton/book-lender/pkg/usecase/user"
-	"github.com/go-playground/validator"
+	"github.com/JhonasMutton/book-lender/pkg/validate"
 )
 
 // Injectors from wire.go:
@@ -26,14 +26,14 @@ import (
 func SetupApplication() pkg.Application {
 	db := database.NewDatabaseConnection()
 	repository := user.NewRepository(db)
-	validate := validator.New()
-	useCase := user2.NewUseCase(repository, validate)
+	validator := validate.NewValidator()
+	useCase := user2.NewUseCase(repository, validator)
 	handler := user3.NewHandler(useCase)
 	bookRepository := book.NewRepository(db)
-	bookUseCase := book2.NewUseCase(bookRepository, validate)
+	bookUseCase := book2.NewUseCase(bookRepository, validator)
 	bookHandler := book3.NewHandler(bookUseCase)
 	lendRepository := lend.NewRepository(db)
-	lendUseCase := lend2.NewUseCase(lendRepository, validate)
+	lendUseCase := lend2.NewUseCase(lendRepository, validator)
 	lendHandler := lend3.NewHandler(lendUseCase)
 	httpHandler := config.NewHandlerConfig(handler, bookHandler, lendHandler)
 	application := pkg.NewApplication(httpHandler)

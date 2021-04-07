@@ -1,9 +1,10 @@
 package book
 
 import (
+	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/book"
-	"github.com/go-playground/validator"
+	"github.com/JhonasMutton/book-lender/pkg/validate"
 )
 
 type IUseCase interface {
@@ -12,23 +13,23 @@ type IUseCase interface {
 
 type UseCase struct {
 	bookRepository book.IRepository
-	validate       *validator.Validate
+	validator      *validate.Validator
 }
 
-func NewUseCase(bookRepository book.IRepository, validate *validator.Validate) *UseCase {
-	return &UseCase{bookRepository: bookRepository, validate: validate}
+func NewUseCase(bookRepository book.IRepository, validator *validate.Validator) *UseCase {
+	return &UseCase{bookRepository: bookRepository, validator: validator}
 }
 
 func (u UseCase) Create(bookDto model.BookDTO) (*model.Book, error) {
-	if err := u.validate.Struct(bookDto); err != nil {
-		return nil, err
+	if err := u.validator.Validate(bookDto); err != nil {
+		return nil, errors.WrapWithMessage(errors.ErrInvalidPayload, err.Error())
 	}
 
 	bookModel := bookDto.ToModel()
 
 	persisted, err := u.bookRepository.Persist(bookModel)
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return persisted, nil

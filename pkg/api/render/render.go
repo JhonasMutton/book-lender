@@ -43,6 +43,8 @@ func GenerateHTTPErrorStatusCode(err error) int {
 		return http.StatusPreconditionFailed
 	case *errors.BadRequest:
 		return http.StatusBadRequest
+	case *errors.Conflict:
+		return http.StatusConflict
 	default:
 		return http.StatusInternalServerError
 	}

@@ -47,7 +47,7 @@ func (r Repository) Update(loanBook model.LoanBook) (*model.LoanBook, error) {
 
 func (r Repository) FetchByToUserAndBookAndStatus(toUserId, bookId uint, status string) (*model.LoanBook, error) {
 	var loanBook model.LoanBook
-	result := r.db.Where("book_id = ? and to_user = ? and status = ?", bookId, toUserId, status).First(&loanBook)
+	result := r.db.Where("book = ? and to_user = ? and status = ?", bookId, toUserId, status).First(&loanBook)
 	if err := result.Error; err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (r Repository) FetchByToUserAndBookAndStatus(toUserId, bookId uint, status 
 
 func (r Repository) FetchByBookAndStatus(bookId uint, status string) (*model.LoanBook, error) {
 	var loanBook model.LoanBook
-	result := r.db.Where("book_id = ? and status = ?", bookId, status).First(&loanBook)
+	result := r.db.Where("book = ? and status = ?", bookId, status).First(&loanBook)
 	if err := result.Error; err != nil {
 		return nil, err
 	}

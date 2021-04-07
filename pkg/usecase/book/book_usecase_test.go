@@ -4,14 +4,14 @@ import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/book"
-	"github.com/go-playground/validator"
+	"github.com/JhonasMutton/book-lender/pkg/validate"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
 var (
-	validate = validator.New()
+	v = validate.NewValidator()
 )
 
 const (
@@ -21,10 +21,10 @@ const (
 func TestNewUseCase(t *testing.T) {
 	repoMock := new(book.RepositoryMock)
 
-	useCase := NewUseCase(repoMock, validate)
+	useCase := NewUseCase(repoMock, v)
 	assert.NotNil(t, useCase)
 	assert.Equal(t, repoMock, useCase.bookRepository)
-	assert.Equal(t, validate, useCase.validate)
+	assert.Equal(t, v, useCase.validator)
 }
 
 func TestUseCase_Create(t *testing.T) {
@@ -39,8 +39,8 @@ func TestUseCase_Create(t *testing.T) {
 
 	repoMock := new(book.RepositoryMock)
 	repoMock.On(PersistMethodName, mock.Anything).Return(&bookModel, nil)
-	useCase := NewUseCase(repoMock, validate)
-	
+	useCase := NewUseCase(repoMock, v)
+
 	persisted, err := useCase.Create(bookDto)
 
 	assert.NoError(t, err)
@@ -56,15 +56,14 @@ func TestUseCase_Create_withValidateError(t *testing.T) {
 	}
 
 	repoMock := new(book.RepositoryMock)
-	useCase := NewUseCase(repoMock, validate)
+	useCase := NewUseCase(repoMock, v)
 
 	persisted, err := useCase.Create(bookDto)
 
 	assert.Nil(t, persisted)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Key: 'BookDTO.Pages' Error:Field validation for 'Pages' failed on the 'required' tag")
+	assert.EqualError(t, err, "Pages is a required field: invalid payload")
 }
-
 
 func TestUseCase_Create_withPersistError(t *testing.T) {
 	bookDto := model.BookDTO{
@@ -75,11 +74,11 @@ func TestUseCase_Create_withPersistError(t *testing.T) {
 
 	repoMock := new(book.RepositoryMock)
 	repoMock.On(PersistMethodName, mock.Anything).Return(nil, errors.New("error to persist"))
-	useCase := NewUseCase(repoMock, validate)
+	useCase := NewUseCase(repoMock, v)
 
 	persisted, err := useCase.Create(bookDto)
 
 	assert.Nil(t, persisted)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "error to persist")
+	assert.EqualError(t, err, "some error has occurred: internal server error")
 }

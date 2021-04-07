@@ -4,7 +4,7 @@ import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/lend"
-	"github.com/go-playground/validator"
+	"github.com/JhonasMutton/book-lender/pkg/validate"
 	goErrors "github.com/pkg/errors"
 	"gorm.io/gorm"
 
@@ -18,51 +18,52 @@ type IUseCase interface {
 
 type UseCase struct {
 	lendRepository lend.IRepository
-	validate       *validator.Validate
+	validator      *validate.Validator
 }
 
-func NewUseCase(lendRepository lend.IRepository, validate *validator.Validate) *UseCase {
-	return &UseCase{lendRepository: lendRepository, validate: validate}
+func NewUseCase(lendRepository lend.IRepository, validator *validate.Validator) *UseCase {
+	return &UseCase{lendRepository: lendRepository, validator: validator}
 }
 
 func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
-	if err := u.validate.Struct(lendDTO); err != nil {
-		return nil, err
+	if err := u.validator.Validate(lendDTO); err != nil {
+		return nil, errors.WrapWithMessage(errors.ErrInvalidPayload, err.Error())
 	}
 
 	lendModel := lendDTO.ToModel()
 
 	loanBookFound, err := u.lendRepository.FetchByBookAndStatus(lendModel.Book, model.StatusLent)
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, err
+		return nil, errors.BuildError(err)
 	}
-	if loanBookFound != nil || goErrors.Is(err, gorm.ErrRecordNotFound) { //REGRA 3
-		return nil, errors.New("book already lent")
+	if loanBookFound != nil{ //REGRA 3
+		return nil, errors.WrapWithMessage(errors.ErrConflict, "book already lent")
 	}
 
 	lendModel.LentAt = time.Now()
 
 	persisted, err := u.lendRepository.Persist(lendModel)
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return persisted, nil
 }
 
 func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) {
-	if err := u.validate.Struct(returnDTO); err != nil {
+	if err := u.validator.Validate(returnDTO); err != nil {
 		return nil, err
 	}
 
 	returnModel := returnDTO.ToModel()
 
 	loanBookFound, err := u.lendRepository.FetchByToUserAndBookAndStatus(returnModel.ToUser, returnModel.Book, model.StatusLent)
-	if err != nil {
-		return nil, err
+	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.BuildError(err)
 	}
-	if loanBookFound == nil { //REGRA 4
-		return nil, errors.New("book already returned")
+
+	if loanBookFound == nil || goErrors.Is(err, gorm.ErrRecordNotFound) { //REGRA 4
+		return nil, errors.WrapWithMessage(errors.ErrConflict, "book already returned")
 	}
 
 	loanBookFound.ReturnedAt = time.Now()
@@ -70,7 +71,7 @@ func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) 
 
 	persisted, err := u.lendRepository.Update(*loanBookFound)
 	if err != nil {
-		return nil, err //TODO Handle errors
+		return nil, errors.BuildError(err)
 	}
 
 	return persisted, nil

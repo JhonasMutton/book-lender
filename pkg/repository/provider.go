@@ -9,4 +9,4 @@ import (
 
 var Set = wire.NewSet(user.NewRepository, wire.Bind(new(user.IRepository), new(*user.Repository)),
 						book.NewRepository, wire.Bind(new(book.IRepository), new(*book.Repository)),
-							lend.NewRepository, wire.Bind(new(lend.IRepository), new(*lend.IRepository)))
+							lend.NewRepository, wire.Bind(new(lend.IRepository), new(*lend.Repository)))

@@ -2,7 +2,10 @@ package errors
 
 import (
 	"fmt"
+	"github.com/VividCortex/mysqlerr"
+	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 var ErrNotFound = &NotFound{Err: fmt.Errorf("not found")}
@@ -38,4 +41,19 @@ func Cause(err error) error {
 
 func New(msg string) error {
 	return errors.New(msg)
+}
+
+func BuildError(err error) error {
+	if driverErr, ok := err.(*mysql.MySQLError); ok {
+		switch driverErr.Number {
+		case mysqlerr.ER_DUP_ENTRY:
+			return WrapWithMessage(ErrConflict, "some key already in use")
+		}
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound){
+		return WrapWithMessage(ErrNotFound, err.Error())
+	}
+
+	return WrapWithMessage(ErrInternalServer, "some error has occurred")
 }

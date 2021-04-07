@@ -9,7 +9,7 @@ type LoanBook struct {
 	ToUser     uint      `json:"to_user"`
 	LentAt     time.Time `json:"lent_at"`
 	ReturnedAt time.Time `json:"returned_at"`
-	Status     string    `json:"Status" gorm:"type:ENUM('lent', 'returned')"`
+	Status     string    `json:"status" gorm:"type:ENUM('lent', 'returned')"`
 }
 
 //Status
