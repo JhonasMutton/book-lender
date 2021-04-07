@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/usecase/user"
 	"github.com/gorilla/mux"
@@ -13,6 +14,10 @@ import (
 	"net/http/httptest"
 	"testing"
 )
+
+func init() {
+	log.SetupLogger()
+}
 
 const (
 	createMethodName   = "Create"

@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
 	"github.com/JhonasMutton/book-lender/pkg/validate"
@@ -24,6 +25,7 @@ func NewUseCase(userRepository user.IRepository, validate *validate.Validator) *
 }
 
 func (u UseCase) Create(userDto model.UserDto) (*model.User, error) {
+	log.Logger.Debugf("Creating user:%x", userDto.Name)
 	if err := u.validator.Validate(userDto); err != nil {
 		return nil, errors.WrapWithMessage(errors.ErrInvalidPayload, err.Error())
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/joho/godotenv"
 	"net/http"
 	"os"
@@ -11,10 +12,12 @@ func init() {
 	if err := godotenv.Load(); err != nil {
 		panic("Error to start application: cannot load environment variables: " + err.Error())
 	}
+
+	log.SetupLogger()
 }
 
 func main() {
-	println("Book lender starting!")
+	log.Logger.Info("Book lender starting!")
 	app := SetupApplication()
 
 	port, ok := os.LookupEnv("SERVER_PORT")
@@ -29,8 +32,8 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	println("Setting up Book Lender server on port:", port)
+	log.Logger.Info("Setting up Book Lender server on port:", port)
 	if err := server.ListenAndServe(); err != nil {
-		panic("Server error: " + err.Error())
+		log.Logger.Fatal("Server error: " + err.Error())
 	}
 }

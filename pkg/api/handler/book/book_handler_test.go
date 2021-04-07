@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/usecase/book"
 	"github.com/stretchr/testify/assert"
@@ -14,6 +15,10 @@ import (
 )
 
 const createMethodName = "Create"
+
+func init() {
+	log.SetupLogger()
+}
 
 func TestNewHandler(t *testing.T) {
 	useCaseMock := new(book.UseCaseMock)

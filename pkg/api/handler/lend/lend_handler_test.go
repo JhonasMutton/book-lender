@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/usecase/lend"
 	"github.com/stretchr/testify/assert"
@@ -12,6 +13,10 @@ import (
 	"net/http/httptest"
 	"testing"
 )
+
+func init() {
+	log.SetupLogger()
+}
 
 const (
 	lendMethodName   = "Lend"

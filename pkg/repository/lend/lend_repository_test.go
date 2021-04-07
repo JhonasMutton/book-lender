@@ -3,6 +3,7 @@ package lend
 import (
 	"fmt"
 	"github.com/JhonasMutton/book-lender/pkg/database"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	testDatabase "github.com/JhonasMutton/book-lender/pkg/test/database"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +21,7 @@ var (
 )
 
 func init() {
+	log.SetupLogger()
 	testDatabase.InitMySqlContainer()
 	setupTest()
 }

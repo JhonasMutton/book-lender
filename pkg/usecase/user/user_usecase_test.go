@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/user"
 	v "github.com/JhonasMutton/book-lender/pkg/validate"
@@ -9,6 +10,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
+
+func init() {
+	log.SetupLogger()
+}
 
 var validator = v.NewValidator()
 
