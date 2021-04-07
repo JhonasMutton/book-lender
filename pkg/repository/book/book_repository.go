@@ -1,11 +1,8 @@
 package book
 
 import (
-	"fmt"
 	"github.com/JhonasMutton/book-lender/pkg/model"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"os"
 )
 
 type IRepository interface {
@@ -16,18 +13,7 @@ type Repository struct {
 	db *gorm.DB
 }
 
-func NewRepository() *Repository {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=60s&readTimeout=60s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
+func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		db: db,
 	}

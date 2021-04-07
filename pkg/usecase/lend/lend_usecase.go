@@ -17,11 +17,11 @@ type IUseCase interface {
 }
 
 type UseCase struct {
-	lendRepository *lend.Repository
+	lendRepository lend.IRepository
 	validate       *validator.Validate
 }
 
-func NewUseCase(lendRepository *lend.Repository, validate *validator.Validate) *UseCase {
+func NewUseCase(lendRepository lend.IRepository, validate *validator.Validate) *UseCase {
 	return &UseCase{lendRepository: lendRepository, validate: validate}
 }
 
@@ -32,11 +32,11 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 
 	lendModel := lendDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.FindByBookAndStatus(lendModel.BookID, model.StatusLent)
+	loanBookFound, err := u.lendRepository.FetchByBookAndStatus(lendModel.Book, model.StatusLent)
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	if loanBookFound != nil { //REGRA 3
+	if loanBookFound != nil || goErrors.Is(err, gorm.ErrRecordNotFound) { //REGRA 3
 		return nil, errors.New("book already lent")
 	}
 
@@ -57,7 +57,7 @@ func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) 
 
 	returnModel := returnDTO.ToModel()
 
-	loanBookFound, err := u.lendRepository.FindByToUser(returnModel)
+	loanBookFound, err := u.lendRepository.FetchByToUserAndBookAndStatus(returnModel.ToUser, returnModel.Book, model.StatusLent)
 	if err != nil {
 		return nil, err
 	}

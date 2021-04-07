@@ -1,11 +1,8 @@
 package user
 
 import (
-	"fmt"
 	"github.com/JhonasMutton/book-lender/pkg/model"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"os"
 )
 
 type IRepository interface {
@@ -18,31 +15,7 @@ type Repository struct {
 	db *gorm.DB
 }
 
-func NewRepository() *Repository {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=60s&readTimeout=60s",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	err = db.AutoMigrate(&model.User{}) //TODO Tirar migrate daqui
-	if err != nil {
-		panic(err.Error())
-	}
-	err = db.AutoMigrate(&model.LoanBook{})
-	if err != nil {
-		panic(err.Error())
-	}
-	err = db.AutoMigrate(&model.Book{})
-	if err != nil {
-		panic(err.Error())
-	}
-
+func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		db: db,
 	}
@@ -69,10 +42,13 @@ func (r *Repository) Persist(user model.User) (*model.User, error) {
 
 func (r *Repository) FetchById(id uint) (*model.User, error) {
 	var user model.User
-	r.db.Debug().Preload("Collection").
+	result := r.db.Debug().Preload("Collection").
 		Preload("LentBooks").
 		Preload("BorrowedBooks").
 		First(&user, id)  //Usar preloads pode ser oneroso, o ideal seria utilizar JOINS, porém despenderia mais tempo de trabalho
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
 	return &user, nil
 }

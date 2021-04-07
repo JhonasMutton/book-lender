@@ -2,6 +2,7 @@ package render
 
 import (
 	"encoding/json"
+	"github.com/JhonasMutton/book-lender/pkg/errors"
 	"net/http"
 )
 
@@ -32,4 +33,17 @@ func ResponseError(w http.ResponseWriter, err error, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	_, _ = w.Write(jsonResponse)
+}
+
+func GenerateHTTPErrorStatusCode(err error) int {
+	switch errors.Cause(err).(type) {
+	case *errors.NotFound:
+		return http.StatusNotFound
+	case *errors.InvalidPayload:
+		return http.StatusPreconditionFailed
+	case *errors.BadRequest:
+		return http.StatusBadRequest
+	default:
+		return http.StatusInternalServerError
+	}
 }

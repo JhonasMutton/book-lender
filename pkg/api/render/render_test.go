@@ -1,8 +1,8 @@
 package render
 
 import (
-	"bitbucket.org/sensedia/secret-manager/pkg/test/testdata/utils"
 	"errors"
+	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -25,10 +25,13 @@ func TestResponseError(t *testing.T) {
 func TestResponse(t *testing.T) {
 	// given
 	recorder := httptest.NewRecorder()
-	event := utils.ReadFile("../../test/testdata/json/payload/secret/http_response_status.json")
+	userDto := model.UserDto{
+		Name:  "Alfredão",
+		Email: "ofred.z1k4@hotmail.com",
+	}
 
 	// when
-	Response(recorder, event, http.StatusOK)
+	Response(recorder, userDto, http.StatusOK)
 
 	// then
 	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
