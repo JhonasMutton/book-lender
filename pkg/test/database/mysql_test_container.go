@@ -55,7 +55,7 @@ func InitMySqlContainer() {
 
 func migration(db *gorm.DB) {
 	if err := db.AutoMigrate(model.User{}, model.LoanBook{}, model.Book{}); err != nil {
-		panic("error to migrate:" + err.Error())
+		panic("error to migration:" + err.Error())
 	}
 }
 
