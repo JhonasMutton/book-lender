@@ -16,3 +16,6 @@ vendor/
 
 # Generated image
 bin/
+
+#ide
+.idea
