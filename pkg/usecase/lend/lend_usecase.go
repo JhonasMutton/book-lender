@@ -2,6 +2,7 @@ package lend
 
 import (
 	"github.com/JhonasMutton/book-lender/pkg/errors"
+	"github.com/JhonasMutton/book-lender/pkg/log"
 	"github.com/JhonasMutton/book-lender/pkg/model"
 	"github.com/JhonasMutton/book-lender/pkg/repository/lend"
 	"github.com/JhonasMutton/book-lender/pkg/validate"
@@ -26,6 +27,7 @@ func NewUseCase(lendRepository lend.IRepository, validator *validate.Validator) 
 }
 
 func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
+	log.Logger.Debugf("Lending book %x to user %x", lendDTO.Book, lendDTO.ToUser)
 	if err := u.validator.Validate(lendDTO); err != nil {
 		return nil, errors.WrapWithMessage(errors.ErrInvalidPayload, err.Error())
 	}
@@ -36,7 +38,7 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 	if err != nil && !goErrors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.BuildError(err)
 	}
-	if loanBookFound != nil{ //REGRA 3
+	if loanBookFound != nil { //REGRA 3
 		return nil, errors.WrapWithMessage(errors.ErrConflict, "book already lent")
 	}
 
@@ -51,6 +53,7 @@ func (u UseCase) Lend(lendDTO model.LendBookDTO) (*model.LoanBook, error) {
 }
 
 func (u UseCase) Return(returnDTO model.ReturnBookDTO) (*model.LoanBook, error) {
+	log.Logger.Debugf("Returning book %x from user %x", returnDTO.Book, returnDTO.LoggedUser)
 	if err := u.validator.Validate(returnDTO); err != nil {
 		return nil, err
 	}

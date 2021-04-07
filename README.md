@@ -70,7 +70,8 @@ O Book-lender dispõe das seguintes variáveis de ambiente para sua configuraç�
 ```DB_PORT=3306```\
 ```DB_USER=root```\
 ```DB_PASSWORD=admin```\
-```DB_NAME=BOOK_LENDER```
+```DB_NAME=BOOK_LENDER```\
+```LOG_LEVEL=debug```
 
 
 ### Banco de dados
@@ -83,7 +84,7 @@ Para parar e subir o container basta executar:
 sh cmd/database/stop-mysql.sh
 ```
 ```shell
-sh cmd/database/stop-mysql.sh
+sh cmd/database/start-mysql.sh
 ```
 Ou utilizar o CLI do docker puramente.
 
