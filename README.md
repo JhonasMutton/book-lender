@@ -1,6 +1,6 @@
 # book-lender
 
-Book-lender é uma aplicação rest feita na linguagem Go com o intuito de gerenciar empréstimos de livros.
+Book-lender é uma aplicação Rest feita na linguagem Go com o intuito de gerenciar empréstimos de livros, para fins de demonstração de conhecimento e aplicação de conceitos.
 
 ## Rodando a aplicação:
 ## Via Docker
